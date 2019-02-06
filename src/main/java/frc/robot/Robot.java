@@ -9,10 +9,13 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 //import edu.wpi.first.wpilibj.command.Command;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -33,6 +36,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		m_oi = OI.getInstance();
 		m_drive = Drive.getInstance();
+		ShuffleboardTab tab = Shuffleboard.getTab("meado");
 	}
 
 	/**
