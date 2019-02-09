@@ -7,26 +7,23 @@
 
 package frc.robot.subsystems;
 
-//import frc.robot.RobotMap;
+import frc.robot.RobotMap;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 /**
- * Add your docs here.
+ * Wrapper class to gyro on Roborio.
  */
 public class Heading {
 	private static Heading m_singleton;
 	private ADXRS450_Gyro m_gyro;
 
 	private Heading() {
-		m_gyro = new ADXRS450_Gyro(/*RobotMap.spiGyroPort*/);
+		m_gyro = new ADXRS450_Gyro(RobotMap.spiGyroPort);
 		m_gyro.calibrate();
 	}
 
 	public double getAngle() {
-		if (m_gyro.isConnected())
-			return m_gyro.getAngle() + 0.3;
-		else
-			return 15.0;
+		return m_gyro.getAngle();
 	}
 
 	public static Heading getInstance() {
