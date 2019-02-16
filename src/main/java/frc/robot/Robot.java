@@ -10,11 +10,21 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+//import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.cscore.CvSink;
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.CvSource;
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
 //import edu.wpi.first.wpilibj.command.Command;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Heading;
 
 
 /**
@@ -25,8 +35,10 @@ import frc.robot.subsystems.Drive;
  * project.
  */
 public class Robot extends TimedRobot {
-	private OI m_oi;
+	private OI m_oi = null;
 	private Drive m_drive = null;
+	private Heading m_gyro = null;
+	private NetworkTableEntry m_headingEntry = null;
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -34,9 +46,37 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void robotInit() {
+		ShuffleboardTab tab = null;
 		m_oi = OI.getInstance();
 		m_drive = Drive.getInstance();
-		ShuffleboardTab tab = Shuffleboard.getTab("meado");
+		m_gyro = Heading.getInstance();
+		
+		//ShuffleboardTab tab = Shuffleboard.getTab("meado");
+		//ShuffleboardTab tab = Shuffleboard.getTab("Front Camera");
+		//UsbCamera​(String FrontCamera, 1);
+		
+		new Thread(() -> {
+			UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+			camera.setResolution(640, 480);
+			
+			CvSink cvSink = CameraServer.getInstance().getVideo();
+			CvSource outputStream = CameraServer.getInstance().putVideo("Blur", 640, 480);
+			
+			Mat source = new Mat();
+			Mat output = new Mat();
+			
+			while(!Thread.interrupted()) {
+				cvSink.grabFrame(source);
+				Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
+				outputStream.putFrame(output);
+			}
+		}).start();
+
+		tab = Shuffleboard.getTab("SmartDashboard");
+		m_headingEntry = tab.add("gyro", m_gyro.getAngle()).getEntry();
+
+	
+		
 	}
 
 	/**
@@ -127,5 +167,8 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+
+		m_headingEntry.setDouble(m_gyro.getAngle());
+
 	}
 }
